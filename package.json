@@ -34,7 +34,7 @@
     "pg": "^8.11.5",
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.6.0",
     "axios": "^1.7.2",
     "cheerio": "^1.0.0-rc.12",
     "ssl-checker": "^1.0.0",
