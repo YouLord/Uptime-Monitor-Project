@@ -37,7 +37,7 @@
     "node-cron": "^3.0.3",
     "axios": "^1.7.2",
     "cheerio": "^1.0.0-rc.12",
-    "ssl-checker": "^1.0.0",
+    "ssl-checker": "^3.0.1",
     "dns-packet": "^5.6.1",
     "ping": "^0.4.4",
     "yaml": "^2.4.2",
