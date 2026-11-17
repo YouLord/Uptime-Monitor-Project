@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (optional, for production-like setup)
+  postgres:
+    image: postgres:16-alpine
+    container_name: uptime-postgres
+    environment:
+      POSTGRES_DB: uptime
+      POSTGRES_USER: uptime
+      POSTGRES_PASSWORD: uptime
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uptime -d uptime"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uptime-network
+
+  # Uptime Monitor App
+  uptime-monitor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: uptime-monitor
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://uptime:uptime@postgres:5432/uptime
+      JWT_SECRET: dev-secret-change-in-production-min-32-chars
+      DEFAULT_CHECK_INTERVAL: 60
+      MAX_CONCURRENT_CHECKS: 50
+      RETENTION_DAYS: 30
+      
+      # Alert channels (configure as needed)
+      # TELEGRAM_BOT_TOKEN: your_bot_token
+      # TELEGRAM_CHAT_ID: your_chat_id
+      # SMTP_HOST: smtp.gmail.com
+      # SMTP_PORT: 587
+      # SMTP_USER: your_email@gmail.com
+      # SMTP_PASS: your_app_password
+      # ALERT_EMAIL_TO: alerts@example.com
+      # WEBHOOK_URL: https://your-webhook-endpoint
+      # WEBHOOK_SECRET: your_webhook_secret
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../src:/app/src:ro
+      - uptime_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - uptime-network
+    restart: unless-stopped
+
+  # Redis for rate limiting (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: uptime-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - uptime-network
+
+volumes:
+  postgres_data:
+  uptime_data:
+  redis_data:
+
+networks:
+  uptime-network:
+    driver: bridge

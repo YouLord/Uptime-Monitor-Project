@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1b26">
+  <title>Uptime Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="screen" role="main">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <svg viewBox="0 0 64 64" width="64" height="64">
+            <circle cx="32" cy="32" r="28" fill="#4fd1c5" fill-opacity="0.2"/>
+            <path d="M32 12a20 20 0 1 1 0 40 20 20 0 0 1 0-40m0 4a16 16 0 1 0 0 32 16 16 0 0 0 0-32" stroke="#4fd1c5" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M32 16v8M32 40v8M16 32h8M40 32h8" stroke="#4fd1c5" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h1>Uptime Monitor</h1>
+        <p class="auth-subtitle">Sign in to access your dashboard</p>
+        
+        <div class="auth-tabs" role="tablist">
+          <button role="tab" id="tab-login" class="auth-tab active" aria-selected="true" aria-controls="panel-login">Sign In</button>
+          <button role="tab" id="tab-register" class="auth-tab" aria-selected="false" aria-controls="panel-register">Register</button>
+        </div>
+        
+        <div class="auth-panels">
+          <div role="tabpanel" id="panel-login" class="auth-panel active">
+            <form id="login-form" novalidate>
+              <div class="form-group">
+                <label for="login-username">Username</label>
+                <input type="text" id="login-username" name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]+" placeholder="Enter username">
+              </div>
+              <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" autocomplete="current-password" required minlength="8" placeholder="Enter password">
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </form>
+          </div>
+          
+          <div role="tabpanel" id="panel-register" class="auth-panel">
+            <form id="register-form" novalidate>
+              <div class="form-group">
+                <label for="reg-username">Username</label>
+                <input type="text" id="reg-username" name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_-]+" placeholder="Choose username">
+                <span class="form-hint">3-32 chars, letters, numbers, _, -</span>
+              </div>
+              <div class="form-group">
+                <label for="reg-email">Email (optional)</label>
+                <input type="email" id="reg-email" name="email" autocomplete="email" placeholder="email@example.com">
+              </div>
+              <div class="form-group">
+                <label for="reg-password">Password</label>
+                <input type="password" id="reg-password" name="password" autocomplete="new-password" required minlength="8" placeholder="Create password">
+              </div>
+              <div class="form-group">
+                <label for="reg-password2">Confirm Password</label>
+                <input type="password" id="reg-password2" name="password2" autocomplete="new-password" required placeholder="Confirm password">
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+            </form>
+          </div>
+        </div>
+        
+        <p id="auth-error" class="auth-error" aria-live="polite"></p>
+      </div>
+    </div>
+    
+    <!-- Main Dashboard -->
+    <div id="main-screen" class="screen hidden" role="application">
+      <!-- Top Bar -->
+      <header class="top-bar" role="banner">
+        <div class="top-bar-left">
+          <button id="sidebar-toggle" class="icon-btn" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <a href="/" class="logo-link" aria-label="Dashboard">
+            <svg width="28" height="28" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="28" fill="#4fd1c5" fill-opacity="0.2"/>
+              <path d="M32 12a20 20 0 1 1 0 40 20 20 0 0 1 0-40m0 4a16 16 0 1 0 0 32 16 16 0 0 0 0-32" stroke="#4fd1c5" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <path d="M32 16v8M32 40v8M16 32h8M40 32h8" stroke="#4fd1c5" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <span class="logo-text">Uptime Monitor</span>
+          </a>
+        </div>
+        
+        <div class="top-bar-center">
+          <div class="search-box" id="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="global-search" placeholder="Search monitors... (Ctrl+K)" aria-label="Search monitors">
+            <kbd class="search-hint">Ctrl+K</kbd>
+          </div>
+        </div>
+        
+        <div class="top-bar-right">
+          <button id="add-monitor-btn" class="btn btn-primary" aria-label="Add monitor">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Add Monitor</span>
+          </button>
+          
+          <div class="user-menu" id="user-menu">
+            <button id="user-menu-trigger" class="user-avatar-btn" aria-label="User menu" aria-expanded="false" aria-haspopup="true">
+              <span id="user-avatar" class="user-avatar"></span>
+              <span id="user-name" class="user-name"></span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="user-dropdown" class="dropdown hidden" role="menu">
+              <div class="dropdown-header">
+                <span id="dropdown-user-name"></span>
+                <span id="dropdown-user-role" class="badge"></span>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="/settings" class="dropdown-item" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Settings
+              </a>
+              <div class="dropdown-divider"></div>
+              <button id="logout-btn" class="dropdown-item danger" role="menuitem">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div class="main-container">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar" role="navigation" aria-label="Monitors">
+          <div class="sidebar-header">
+            <h2>Monitors</h2>
+            <span id="monitor-count" class="badge">0</span>
+          </div>
+          
+          <div class="sidebar-filters">
+            <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+            <button class="filter-btn" data-filter="up" aria-pressed="false">Up</button>
+            <button class="filter-btn" data-filter="down" aria-pressed="false">Down</button>
+            <button class="filter-btn" data-filter="degraded" aria-pressed="false">Degraded</button>
+          </div>
+          
+          <ul id="monitor-list" class="monitor-list" role="list" aria-label="Monitor list"></ul>
+          
+          <div class="sidebar-footer">
+            <div class="system-status">
+              <span class="status-indicator" id="system-status-indicator"></span>
+              <span id="system-status-text">System Operational</span>
+            </div>
+          </div>
+        </aside>
+        
+        <!-- Sidebar Overlay for Mobile -->
+        <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+        
+        <!-- Main Content -->
+        <main id="main-content" class="main-content" role="main">
+          <!-- Dashboard Overview -->
+          <section id="dashboard-view" class="view active" aria-labelledby="dashboard-title">
+            <header class="view-header">
+              <h1 id="dashboard-title">Dashboard</h1>
+              <div class="view-actions">
+                <div class="time-range-selector">
+                  <select id="time-range" aria-label="Time range">
+                    <option value="1h">Last Hour</option>
+                    <option value="6h">Last 6 Hours</option>
+                    <option value="24h" selected>Last 24 Hours</option>
+                    <option value="7d">Last 7 Days</option>
+                    <option value="30d">Last 30 Days</option>
+                  </select>
+                </div>
+              </div>
+            </header>
+            
+            <div class="stats-grid" role="region" aria-label="System statistics">
+              <article class="stat-card">
+                <div class="stat-icon up"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                <div class="stat-info">
+                  <span class="stat-value" id="stat-up">0</span>
+                  <span class="stat-label">Up</span>
+                </div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-icon down"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+                <div class="stat-info">
+                  <span class="stat-value" id="stat-down">0</span>
+                  <span class="stat-label">Down</span>
+                </div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-icon degraded"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                <div class="stat-info">
+                  <span class="stat-value" id="stat-degraded">0</span>
+                  <span class="stat-label">Degraded</span>
+                </div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-icon uptime"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <div class="stat-info">
+                  <span class="stat-value" id="stat-uptime">100%</span>
+                  <span class="stat-label">Uptime (24h)</span>
+                </div>
+              </article>
+            </div>
+            
+            <div class="charts-row">
+              <section class="chart-container" aria-labelledby="uptime-chart-title">
+                <h2 id="uptime-chart-title">Uptime Trend (24h)</h2>
+                <canvas id="uptime-chart" width="800" height="300" aria-label="Uptime percentage over time"></canvas>
+              </section>
+              <section class="chart-container" aria-labelledby="response-chart-title">
+                <h2 id="response-chart-title">Response Time (24h)</h2>
+                <canvas id="response-chart" width="800" height="300" aria-label="Average response time in milliseconds"></canvas>
+              </section>
+            </div>
+            
+            <section class="recent-incidents" aria-labelledby="incidents-title">
+              <div class="section-header">
+                <h2 id="incidents-title">Recent Incidents</h2>
+                <a href="#incidents" class="btn btn-secondary btn-sm">View All</a>
+              </div>
+              <div id="recent-incidents-list" class="incident-list"></div>
+            </section>
+          </section>
+          
+          <!-- Monitor Detail View -->
+          <section id="monitor-detail-view" class="view hidden" aria-labelledby="monitor-detail-title">
+            <header class="view-header">
+              <div class="monitor-detail-header">
+                <div class="monitor-status-badge" id="monitor-detail-status">
+                  <span class="status-dot"></span>
+                  <span id="monitor-detail-status-text">Unknown</span>
+                </div>
+                <div>
+                  <h1 id="monitor-detail-title">Monitor Name</h1>
+                  <p id="monitor-detail-target" class="monitor-target"></p>
+                </div>
+              </div>
+              <div class="view-actions">
+                <button id="monitor-check-now" class="btn btn-primary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  Check Now
+                </button>
+                <button id="monitor-edit-btn" class="btn btn-secondary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Edit
+                </button>
+                <button id="monitor-delete-btn" class="btn btn-danger">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  Delete
+                </button>
+              </div>
+            </header>
+            
+            <div class="monitor-detail-grid">
+              <div class="monitor-main">
+                <section class="card" aria-labelledby="current-status-title">
+                  <h2 id="current-status-title">Current Status</h2>
+                  <div class="status-display">
+                    <div class="status-large" id="detail-status-large">
+                      <span class="status-dot large"></span>
+                      <span id="detail-status-text">Checking...</span>
+                    </div>
+                    <div class="status-metrics">
+                      <div class="metric">
+                        <span class="metric-value" id="detail-response-time">-</span>
+                        <span class="metric-label">Response Time</span>
+                      </div>
+                      <div class="metric">
+                        <span class="metric-value" id="detail-status-code">-</span>
+                        <span class="metric-label">Status Code</span>
+                      </div>
+                      <div class="metric">
+                        <span class="metric-value" id="detail-last-check">-</span>
+                        <span class="metric-label">Last Check</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                
+                <section class="card" aria-labelledby="uptime-chart-detail-title">
+                  <h2 id="uptime-chart-detail-title">Uptime (24h)</h2>
+                  <canvas id="detail-uptime-chart" width="600" height="200"></canvas>
+                </section>
+                
+                <section class="card" aria-labelledby="response-chart-detail-title">
+                  <h2 id="response-chart-detail-title">Response Time (24h)</h2>
+                  <canvas id="detail-response-chart" width="600" height="200"></canvas>
+                </section>
+                
+                <section class="card" aria-labelledby="recent-checks-title">
+                  <div class="section-header">
+                    <h2 id="recent-checks-title">Recent Checks</h2>
+                  </div>
+                  <div id="recent-checks-table" class="table-container">
+                    <table class="checks-table">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Status</th>
+                          <th>Response Time</th>
+                          <th>Status Code</th>
+                          <th>Error</th>
+                        </tr>
+                      </thead>
+                      <tbody id="checks-tbody"></tbody>
+                    </table>
+                  </div>
+                </section>
+              </div>
+              
+              <aside class="monitor-sidebar">
+                <section class="card" aria-labelledby="monitor-info-title">
+                  <h2 id="monitor-info-title">Monitor Info</h2>
+                  <dl class="info-list" id="monitor-info-list"></dl>
+                </section>
+                
+                <section class="card" aria-labelledby="incidents-title">
+                  <h2 id="incidents-title">Incidents</h2>
+                  <div id="monitor-incidents-list" class="incident-list-small"></div>
+                </section>
+                
+                <section class="card" aria-labelledby="alert-rules-title">
+                  <h2 id="alert-rules-title">Alert Rules</h2>
+                  <div id="monitor-alert-rules" class="alert-rules-list"></div>
+                </section>
+              </aside>
+            </div>
+          </section>
+          
+          <!-- Add/Edit Monitor Modal -->
+          <div id="monitor-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-content">
+              <header class="modal-header">
+                <h2 id="modal-title">Add Monitor</h2>
+                <button class="modal-close" aria-label="Close">&times;</button>
+              </header>
+              <form id="monitor-form" novalidate>
+                <input type="hidden" id="monitor-id" name="id">
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="form-name">Name *</label>
+                    <input type="text" id="form-name" name="name" required minlength="1" maxlength="100" placeholder="e.g., Production API">
+                  </div>
+                  <div class="form-group">
+                    <label for="form-type">Type *</label>
+                    <select id="form-type" name="type" required>
+                      <option value="http">HTTP</option>
+                      <option value="https">HTTPS</option>
+                      <option value="ping">Ping (ICMP)</option>
+                      <option value="tcp">TCP Port</option>
+                      <option value="dns">DNS</option>
+                      <option value="ssl">SSL Certificate</option>
+                      <option value="keyword">Keyword Check</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="form-target">Target *</label>
+                  <input type="text" id="form-target" name="target" required placeholder="https://api.example.com/health or example.com:8080">
+                  <span class="form-hint" id="target-hint">URL, hostname, or IP:port depending on type</span>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="form-interval">Interval (seconds) *</label>
+                    <input type="number" id="form-interval" name="interval_seconds" min="10" max="86400" value="60" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="form-timeout">Timeout (seconds) *</label>
+                    <input type="number" id="form-timeout" name="timeout_seconds" min="1" max="300" value="10" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="form-retries">Retries *</label>
+                    <input type="number" id="form-retries" name="retries" min="0" max="10" value="3" required>
+                  </div>
+                </div>
+                
+                <!-- HTTP/HTTPS specific fields -->
+                <fieldset id="http-fields" class="conditional-fields">
+                  <legend>HTTP Settings</legend>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="form-method">Method</label>
+                      <select id="form-method" name="method">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="HEAD">HEAD</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="form-expected-codes">Expected Status Codes</label>
+                      <input type="text" id="form-expected-codes" name="expected_status_codes" value="200" placeholder="200,201,204">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="form-headers">Headers (JSON)</label>
+                    <textarea id="form-headers" name="headers" rows="3" placeholder='{"Authorization": "Bearer token"}'></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="form-body">Body</label>
+                    <textarea id="form-body" name="body" rows="3" placeholder='{"key": "value"}'></textarea>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group checkbox-group">
+                      <label class="checkbox-label">
+                        <input type="checkbox" id="form-ignore-ssl" name="ignore_ssl" value="1">
+                        <span>Ignore SSL Errors</span>
+                      </label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                      <label class="checkbox-label">
+                        <input type="checkbox" id="form-follow-redirects" name="follow_redirects" value="1" checked>
+                        <span>Follow Redirects</span>
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
+                
+                <!-- Keyword specific -->
+                <fieldset id="keyword-fields" class="conditional-fields hidden">
+                  <legend>Keyword Check</legend>
+                  <div class="form-group">
+                    <label for="form-keyword">Keyword to Search</label>
+                    <input type="text" id="form-keyword" name="keyword" placeholder="e.g., 'Operational' or 'Success'">
+                  </div>
+                </fieldset>
+                
+                <!-- DNS specific -->
+                <fieldset id="dns-fields" class="conditional-fields hidden">
+                  <legend>DNS Settings</legend>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="form-dns-type">Record Type</label>
+                      <select id="form-dns-type" name="dns_record_type">
+                        <option value="A">A</option>
+                        <option value="AAAA">AAAA</option>
+                        <option value="CNAME">CNAME</option>
+                        <option value="MX">MX</option>
+                        <option value="TXT">TXT</option>
+                        <option value="NS">NS</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="form-dns-expected">Expected IP (optional)</label>
+                      <input type="text" id="form-dns-expected" name="dns_expected_ip" placeholder="192.168.1.1">
+                    </div>
+                  </div>
+                </fieldset>
+                
+                <!-- TCP specific -->
+                <fieldset id="tcp-fields" class="conditional-fields hidden">
+                  <legend>TCP Settings</legend>
+                  <div class="form-group">
+                    <label for="form-port">Port *</label>
+                    <input type="number" id="form-port" name="port" min="1" max="65535" required placeholder="8080">
+                  </div>
+                </fieldset>
+                
+                <!-- SSL specific -->
+                <fieldset id="ssl-fields" class="conditional-fields hidden">
+                  <legend>SSL Certificate Check</legend>
+                  <p class="form-hint">Checks certificate expiration, validity, and security</p>
+                </fieldset>
+                
+                <div class="form-row">
+                  <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="form-active" name="is_active" value="1" checked>
+                      <span>Active (enable monitoring)</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="form-actions">
+                  <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Monitor</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Settings Modal -->
+          <div id="settings-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+            <div class="modal-content large">
+              <header class="modal-header">
+                <h2 id="settings-modal-title">Settings</h2>
+                <button class="modal-close" aria-label="Close">&times;</button>
+              </header>
+              <div class="settings-tabs">
+                <button class="settings-tab active" data-tab="general">General</button>
+                <button class="settings-tab" data-tab="alerts">Alert Channels</button>
+                <button class="settings-tab" data-tab="users">Users</button>
+              </div>
+              <div class="settings-panels">
+                <div class="settings-panel active" data-panel="general">
+                  <h3>General Settings</h3>
+                  <form id="general-settings-form">
+                    <div class="form-group">
+                      <label for="setting-title">Dashboard Title</label>
+                      <input type="text" id="setting-title" name="dashboard_title" value="Uptime Monitor">
+                    </div>
+                    <div class="form-group">
+                      <label for="setting-theme">Default Theme</label>
+                      <select id="setting-theme" name="dashboard_theme">
+                        <option value="auto">Auto (System)</option>
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                      </select>
+                    </div>
+                    <div class="form-group checkbox-group">
+                      <label class="checkbox-label">
+                        <input type="checkbox" id="setting-registration" name="enable_registration">
+                        <span>Allow User Registration</span>
+                      </label>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="setting-retention">Data Retention (days)</label>
+                        <input type="number" id="setting-retention" name="retention_days" min="1" max="365" value="30">
+                      </div>
+                      <div class="form-group">
+                        <label for="setting-hourly-retention">Hourly Stats Retention (days)</label>
+                        <input type="number" id="setting-hourly-retention" name="retention_hourly_days" min="1" max="365" value="90">
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                  </form>
+                </div>
+                <div class="settings-panel" data-panel="alerts">
+                  <h3>Alert Channels</h3>
+                  <div class="alert-channel-cards">
+                    <article class="channel-card" id="channel-telegram">
+                      <div class="channel-icon telegram"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 2A8.06 8.06 0 0 0 3.9 9.1c-.7.9-1 2.1-.6 3.1.2.5.5.9.9 1.3l3.7 5.8c.6 1 .6 2.2-.2 2.9l-5.6 4.9c-.5.5-.5 1.3.1 1.8.3.3.7.5 1.1.5h.1c1.5 0 3.3-.3 4.3-1.1l1.7-2.2c1.7 1.2 3.7 1.7 5.8 1.4 1.4-.2 2.7-.7 3.8-1.5.2-.2.4-.3.5-.3H22c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2h-8.056z"/></svg></div>
+                      <div class="channel-info">
+                        <h4>Telegram Bot</h4>
+                        <p>Send alerts to Telegram chats</p>
+                      </div>
+                      <div class="channel-status" id="telegram-status">
+                        <span class="status-dot"></span>
+                        <span>Not Configured</span>
+                      </div>
+                      <button class="btn btn-secondary btn-sm" id="configure-telegram">Configure</button>
+                    </article>
+                    <article class="channel-card" id="channel-email">
+                      <div class="channel-icon email"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+                      <div class="channel-info">
+                        <h4>Email (SMTP)</h4>
+                        <p>Send alerts via email</p>
+                      </div>
+                      <div class="channel-status" id="email-status">
+                        <span class="status-dot"></span>
+                        <span>Not Configured</span>
+                      </div>
+                      <button class="btn btn-secondary btn-sm" id="configure-email">Configure</button>
+                    </article>
+                    <article class="channel-card" id="channel-webhook">
+                      <div class="channel-icon webhook"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h9l1-8h-9z"/></svg></div>
+                      <div class="channel-info">
+                        <h4>Webhook</h4>
+                        <p>Send alerts to any HTTP endpoint</p>
+                      </div>
+                      <div class="channel-status" id="webhook-status">
+                        <span class="status-dot"></span>
+                        <span>Not Configured</span>
+                      </div>
+                      <button class="btn btn-secondary btn-sm" id="configure-webhook">Configure</button>
+                    </article>
+                  </div>
+                </div>
+                <div class="settings-panel" data-panel="users">
+                  <h3>User Management</h3>
+                  <div class="users-toolbar">
+                    <button class="btn btn-primary" id="add-user-btn">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      Add User
+                    </button>
+                  </div>
+                  <div class="table-container">
+                    <table class="users-table">
+                      <thead>
+                        <tr>
+                          <th>Username</th>
+                          <th>Email</th>
+                          <th>Role</th>
+                          <th>Last Login</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="users-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Toast Container -->
+          <div id="toast-container" class="toast-container" aria-live="polite" aria-label="Notifications"></div>
+        </main>
+      </div>
+    </div>
+    
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+  </div>
+</body>
+</html>

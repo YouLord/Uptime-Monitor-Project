@@ -1,0 +1,57 @@
+{
+  "name": "uptime-monitor",
+  "version": "1.0.0",
+  "description": "Lightweight uptime monitoring with HTTP/SSL/Ping/DNS checks, Telegram/Email/Webhook alerts, and web dashboard",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/**/*.test.js",
+    "test:watch": "node --watch --test tests/**/*.test.js",
+    "lint": "eslint src/",
+    "db:migrate": "node src/db/migrate.js",
+    "docker:build": "docker build -f docker/Dockerfile -t uptime-monitor .",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down"
+  },
+  "keywords": [
+    "uptime",
+    "monitoring",
+    "health-check",
+    "ssl",
+    "telegram",
+    "dashboard",
+    "observability"
+  ],
+  "author": "YouLord",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "pg": "^8.11.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "node-cron": "^3.0.3",
+    "axios": "^1.7.2",
+    "cheerio": "^1.0.0-rc.12",
+    "ssl-checker": "^1.0.0",
+    "dns-packet": "^5.6.1",
+    "ping": "^0.4.4",
+    "yaml": "^2.4.2",
+    "zod": "^3.23.8",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.13",
+    "telegraf": "^4.16.3",
+    "chart.js": "^4.4.2",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "@eslint/js": "^9.2.0",
+    "globals": "^15.0.0"
+  }
+}
