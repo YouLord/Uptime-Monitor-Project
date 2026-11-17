@@ -30,7 +30,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.3",
+    "better-sqlite3": "^13.2.0",
     "pg": "^8.11.5",
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
